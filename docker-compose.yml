@@ -3,6 +3,7 @@ volumes:
   pg_data:
   # Новый volume — для статических файлов
   static:
+  media:
 
 services:
   db:
@@ -13,9 +14,11 @@ services:
   backend:
     build: ./backend/
     env_file: .env
-    # Тут подключаем volume к backend
+    environment:
+      DJANGO_STATIC_ROOT: /backend_static/static
     volumes:
       - static:/backend_static
+      - media:/app/media
   frontend:
     env_file: .env
     build: ./frontend/
@@ -24,8 +27,8 @@ services:
       - static:/frontend_static
   gateway:
     build: ./gateway/
-    # А тут подключаем volume со статикой к gateway
     volumes:
-      - static:/staticfiles
+      - static:/staticfiles:ro
+      - media:/media:ro
     ports:
       - 8000:80
